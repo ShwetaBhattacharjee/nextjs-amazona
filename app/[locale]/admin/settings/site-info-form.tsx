@@ -28,8 +28,6 @@ export default function SiteInfoForm({
 
   const siteLogo = watch("site.logo");
 
-  const images = form.watch("site.logo");
-
   const removeImage = (image: string) => {
     form.setValue("site.logo", ""); // Clear the logo field in the form
   };

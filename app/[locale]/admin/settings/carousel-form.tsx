@@ -33,13 +33,6 @@ export default function CarouselForm({
     formState: { errors },
   } = form;
 
-  const images = watch("carousels");
-
-  const removeImage = (index: number) => {
-    const updatedImages = images.filter((_, idx) => idx !== index);
-    form.setValue("carousels", updatedImages);
-  };
-
   return (
     <Card id={id}>
       <CardHeader>
