@@ -306,11 +306,18 @@ const ProductForm = ({
                                   e.target.files[0]
                                 );
                                 form.setValue("images", [...images, url]);
-                              } catch (error: any) {
-                                toast({
-                                  variant: "destructive",
-                                  description: `ERROR! ${error.message}`,
-                                });
+                              } catch (error: unknown) {
+                                if (error instanceof Error) {
+                                  toast({
+                                    variant: "destructive",
+                                    description: `ERROR! ${error.message}`,
+                                  });
+                                } else {
+                                  toast({
+                                    variant: "destructive",
+                                    description: "An unknown error occurred",
+                                  });
+                                }
                               }
                             }
                           }}
