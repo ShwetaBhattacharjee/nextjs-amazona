@@ -1,47 +1,54 @@
 /* eslint-disable @next/next/no-img-element */
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   FormControl,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form'
-import { Input } from '@/components/ui/input'
-import { Textarea } from '@/components/ui/textarea'
-import { toast } from '@/hooks/use-toast'
-import { UploadButton } from '@/lib/uploadthing'
-import { ISettingInput } from '@/types'
-import { TrashIcon } from 'lucide-react'
-import React from 'react'
-import { UseFormReturn } from 'react-hook-form'
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { toast } from "@/hooks/use-toast";
+import { uploadToCloudinary } from "@/lib/cloudinary"; // Import Cloudinary upload function
+import { ISettingInput } from "@/types";
+import { TrashIcon } from "lucide-react";
+import React from "react";
+import { UseFormReturn } from "react-hook-form";
 
 export default function SiteInfoForm({
   form,
   id,
 }: {
-  form: UseFormReturn<ISettingInput>
-  id: string
+  form: UseFormReturn<ISettingInput>;
+  id: string;
 }) {
-  const { watch, control } = form
+  const { watch, control } = form;
 
-  const siteLogo = watch('site.logo')
+  const siteLogo = watch("site.logo");
+
+  const images = form.watch("site.logo");
+
+  const removeImage = (image: string) => {
+    form.setValue("site.logo", ""); // Clear the logo field in the form
+  };
+
   return (
     <Card id={id}>
       <CardHeader>
         <CardTitle>Site Info</CardTitle>
       </CardHeader>
-      <CardContent className='space-y-4'>
-        <div className='flex flex-col gap-5 md:flex-row'>
+      <CardContent className="space-y-4">
+        <div className="flex flex-col gap-5 md:flex-row">
           <FormField
             control={control}
-            name='site.name'
+            name="site.name"
             render={({ field }) => (
-              <FormItem className='w-full'>
+              <FormItem className="w-full">
                 <FormLabel>Name</FormLabel>
                 <FormControl>
-                  <Input placeholder='Enter site name' {...field} />
+                  <Input placeholder="Enter site name" {...field} />
                 </FormControl>
 
                 <FormMessage />
@@ -51,12 +58,12 @@ export default function SiteInfoForm({
 
           <FormField
             control={control}
-            name='site.url'
+            name="site.url"
             render={({ field }) => (
-              <FormItem className='w-full'>
+              <FormItem className="w-full">
                 <FormLabel>Url</FormLabel>
                 <FormControl>
-                  <Input placeholder='Enter url' {...field} />
+                  <Input placeholder="Enter url" {...field} />
                 </FormControl>
 
                 <FormMessage />
@@ -64,16 +71,16 @@ export default function SiteInfoForm({
             )}
           />
         </div>
-        <div className='flex flex-col gap-5 md:flex-row'>
-          <div className='w-full text-left'>
+        <div className="flex flex-col gap-5 md:flex-row">
+          <div className="w-full text-left">
             <FormField
               control={control}
-              name='site.logo'
+              name="site.logo"
               render={({ field }) => (
-                <FormItem className='w-full'>
+                <FormItem className="w-full">
                   <FormLabel>Logo</FormLabel>
                   <FormControl>
-                    <Input placeholder='Enter image url' {...field} />
+                    <Input placeholder="Enter image url" {...field} />
                   </FormControl>
 
                   <FormMessage />
@@ -82,43 +89,53 @@ export default function SiteInfoForm({
             />
 
             {siteLogo && (
-              <div className='flex my-2 items-center gap-2'>
-                <img src={siteLogo} alt='logo' width={48} height={48} />
+              <div className="flex my-2 items-center gap-2">
+                <img src={siteLogo} alt="logo" width={48} height={48} />
                 <Button
-                  type='button'
-                  variant='outline'
-                  onClick={() => form.setValue('site.logo', '')}
+                  type="button"
+                  variant="outline"
+                  onClick={() => removeImage(siteLogo)}
                 >
-                  <TrashIcon className='w-4 h-4' />
+                  <TrashIcon className="w-4 h-4" />
                 </Button>
               </div>
             )}
             {!siteLogo && (
-              <UploadButton
-                className='!items-start py-2'
-                endpoint='imageUploader'
-                onClientUploadComplete={(res) => {
-                  form.setValue('site.logo', res[0].url)
-                }}
-                onUploadError={(error: Error) => {
-                  toast({
-                    variant: 'destructive',
-                    description: `ERROR! ${error.message}`,
-                  })
-                }}
-              />
+              <div>
+                <FormControl>
+                  <input
+                    type="file"
+                    placeholder="Type here"
+                    onChange={async (e) => {
+                      if (e.target.files?.[0]) {
+                        try {
+                          const url = await uploadToCloudinary(
+                            e.target.files[0]
+                          );
+                          form.setValue("site.logo", url);
+                        } catch (error: any) {
+                          toast({
+                            variant: "destructive",
+                            description: `ERROR! ${error.message}`,
+                          });
+                        }
+                      }
+                    }}
+                  />
+                </FormControl>
+              </div>
             )}
           </div>
           <FormField
             control={control}
-            name='site.description'
+            name="site.description"
             render={({ field }) => (
-              <FormItem className='w-full'>
+              <FormItem className="w-full">
                 <FormLabel>Description</FormLabel>
                 <FormControl>
                   <Textarea
-                    placeholder='Enter description'
-                    className='h-40'
+                    placeholder="Enter description"
+                    className="h-40"
                     {...field}
                   />
                 </FormControl>
@@ -128,15 +145,15 @@ export default function SiteInfoForm({
             )}
           />
         </div>
-        <div className='flex flex-col gap-5 md:flex-row'>
+        <div className="flex flex-col gap-5 md:flex-row">
           <FormField
             control={control}
-            name='site.slogan'
+            name="site.slogan"
             render={({ field }) => (
-              <FormItem className='w-full'>
+              <FormItem className="w-full">
                 <FormLabel>Slogan</FormLabel>
                 <FormControl>
-                  <Input placeholder='Enter slogan name' {...field} />
+                  <Input placeholder="Enter slogan name" {...field} />
                 </FormControl>
 
                 <FormMessage />
@@ -145,12 +162,12 @@ export default function SiteInfoForm({
           />
           <FormField
             control={control}
-            name='site.keywords'
+            name="site.keywords"
             render={({ field }) => (
-              <FormItem className='w-full'>
+              <FormItem className="w-full">
                 <FormLabel>Keywords</FormLabel>
                 <FormControl>
-                  <Input placeholder='Enter keywords' {...field} />
+                  <Input placeholder="Enter keywords" {...field} />
                 </FormControl>
 
                 <FormMessage />
@@ -158,15 +175,15 @@ export default function SiteInfoForm({
             )}
           />
         </div>
-        <div className='flex flex-col gap-5 md:flex-row'>
+        <div className="flex flex-col gap-5 md:flex-row">
           <FormField
             control={control}
-            name='site.phone'
+            name="site.phone"
             render={({ field }) => (
-              <FormItem className='w-full'>
+              <FormItem className="w-full">
                 <FormLabel>Phone</FormLabel>
                 <FormControl>
-                  <Input placeholder='Enter phone number' {...field} />
+                  <Input placeholder="Enter phone number" {...field} />
                 </FormControl>
 
                 <FormMessage />
@@ -175,12 +192,12 @@ export default function SiteInfoForm({
           />
           <FormField
             control={control}
-            name='site.email'
+            name="site.email"
             render={({ field }) => (
-              <FormItem className='w-full'>
+              <FormItem className="w-full">
                 <FormLabel>Email</FormLabel>
                 <FormControl>
-                  <Input placeholder='Enter email address' {...field} />
+                  <Input placeholder="Enter email address" {...field} />
                 </FormControl>
 
                 <FormMessage />
@@ -188,15 +205,15 @@ export default function SiteInfoForm({
             )}
           />
         </div>
-        <div className='flex flex-col gap-5 md:flex-row'>
+        <div className="flex flex-col gap-5 md:flex-row">
           <FormField
             control={control}
-            name='site.address'
+            name="site.address"
             render={({ field }) => (
-              <FormItem className='w-full'>
+              <FormItem className="w-full">
                 <FormLabel>Address</FormLabel>
                 <FormControl>
-                  <Input placeholder='Enter address' {...field} />
+                  <Input placeholder="Enter address" {...field} />
                 </FormControl>
 
                 <FormMessage />
@@ -205,12 +222,12 @@ export default function SiteInfoForm({
           />
           <FormField
             control={control}
-            name='site.copyright'
+            name="site.copyright"
             render={({ field }) => (
-              <FormItem className='w-full'>
+              <FormItem className="w-full">
                 <FormLabel>Copyright</FormLabel>
                 <FormControl>
-                  <Input placeholder='Enter copyright' {...field} />
+                  <Input placeholder="Enter copyright" {...field} />
                 </FormControl>
 
                 <FormMessage />
@@ -220,5 +237,5 @@ export default function SiteInfoForm({
         </div>
       </CardContent>
     </Card>
-  )
+  );
 }
