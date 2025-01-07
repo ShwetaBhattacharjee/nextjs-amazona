@@ -89,13 +89,6 @@ export default function SiteInfoForm({
             {siteLogo && (
               <div className="flex my-2 items-center gap-2">
                 <img src={siteLogo} alt="logo" width={48} height={48} />
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => removeImage(siteLogo)}
-                >
-                  <TrashIcon className="w-4 h-4" />
-                </Button>
               </div>
             )}
             {!siteLogo && (
